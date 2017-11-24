@@ -17,6 +17,7 @@ package com.jess.arms.integration;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
@@ -24,7 +25,8 @@ import android.view.View;
 import com.jess.arms.base.delegate.FragmentDelegate;
 import com.jess.arms.base.delegate.FragmentDelegateImpl;
 import com.jess.arms.base.delegate.IFragment;
-import com.jess.arms.integration.cache.Cache;
+import com.jess.arms.integration.store.lifecyclemodel.LifecycleModelProviders;
+import com.jess.arms.integration.store.lifecyclemodel.LifecycleModelStore;
 import com.jess.arms.utils.Preconditions;
 
 import timber.log.Timber;
@@ -47,10 +49,9 @@ public class FragmentLifecycle extends FragmentManager.FragmentLifecycleCallback
         if (f instanceof IFragment) {
             FragmentDelegate fragmentDelegate = fetchFragmentDelegate(f);
             if (fragmentDelegate == null || !fragmentDelegate.isAdded()) {
-                IFragment iFragment = (IFragment) f;
-                Preconditions.checkNotNull(iFragment.provideCache(), "%s cannot be null on Fragment", Cache.class.getName());
                 fragmentDelegate = new FragmentDelegateImpl(fm, f);
-                iFragment.provideCache().put(FragmentDelegate.FRAGMENT_DELEGATE, fragmentDelegate);
+                LifecycleModelStore lifecycleModelStore = getLifecycleModelStore(f);
+                lifecycleModelStore.put(FragmentDelegate.FRAGMENT_DELEGATE, fragmentDelegate);
             }
             fragmentDelegate.onAttach(context);
         }
@@ -143,7 +144,10 @@ public class FragmentLifecycle extends FragmentManager.FragmentLifecycleCallback
         FragmentDelegate fragmentDelegate = fetchFragmentDelegate(f);
         if (fragmentDelegate != null) {
             fragmentDelegate.onDestroy();
+            LifecycleModelStore lifecycleModelStore = getLifecycleModelStore(f);
+            lifecycleModelStore.remove(FragmentDelegate.FRAGMENT_DELEGATE);
         }
+
     }
 
     @Override
@@ -157,11 +161,17 @@ public class FragmentLifecycle extends FragmentManager.FragmentLifecycleCallback
 
     private FragmentDelegate fetchFragmentDelegate(Fragment fragment) {
         if (fragment instanceof IFragment) {
-            IFragment iFragment = (IFragment) fragment;
-            Preconditions.checkNotNull(iFragment.provideCache(), "%s cannot be null on Fragment", Cache.class.getName());
-            return (FragmentDelegate) iFragment.provideCache().get(FragmentDelegate.FRAGMENT_DELEGATE);
+            LifecycleModelStore lifecycleModelStore = getLifecycleModelStore(fragment);
+            return lifecycleModelStore.get(FragmentDelegate.FRAGMENT_DELEGATE);
         }
         return null;
+    }
+
+    @NonNull
+    private LifecycleModelStore getLifecycleModelStore(Fragment fragment) {
+        LifecycleModelStore lifecycleModelStore = LifecycleModelProviders.of(fragment);
+        Preconditions.checkNotNull(lifecycleModelStore, "%s cannot be null", LifecycleModelStore.class.getName());
+        return lifecycleModelStore;
     }
 
 }

@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
+import com.jess.arms.integration.store.lifecyclemodel.LifecycleModel;
+
 /**
  * ================================================
  * {@link Fragment} 代理类,用于框架内部在每个 {@link Fragment} 的对应生命周期中插入需要的逻辑
@@ -31,7 +33,7 @@ import android.view.View;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public interface FragmentDelegate {
+public interface FragmentDelegate extends LifecycleModel {
     String FRAGMENT_DELEGATE = "fragment_delegate";
 
     void onAttach(Context context);

@@ -133,4 +133,9 @@ public class FragmentDelegateImpl implements FragmentDelegate {
     public boolean isAdded() {
         return mFragment != null && mFragment.isAdded();
     }
+
+    @Override
+    public void onCleared() {
+
+    }
 }

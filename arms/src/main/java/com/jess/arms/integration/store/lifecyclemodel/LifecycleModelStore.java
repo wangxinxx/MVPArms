@@ -46,9 +46,9 @@ public class LifecycleModelStore {
 
     public LifecycleModelStore(Application application) {
         if (application instanceof App) {
-            mCache = ((App) application).getAppComponent().cacheFactory().build(CacheType.ACTIVITY_CACHE);
+            mCache = ((App) application).getAppComponent().cacheFactory().build(CacheType.LIFECYCLE_MODEL_CACHE);
         } else {
-            mCache = new LruCache<>(CacheType.ACTIVITY_CACHE.calculateCacheSize(application));
+            mCache = new LruCache<>(CacheType.LIFECYCLE_MODEL_CACHE.calculateCacheSize(application));
         }
     }
 

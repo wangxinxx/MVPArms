@@ -79,4 +79,9 @@ public class ActivityDelegateImpl implements ActivityDelegate {
         this.iActivity = null;
         this.mActivity = null;
     }
+
+    @Override
+    public void onCleared() {
+
+    }
 }
